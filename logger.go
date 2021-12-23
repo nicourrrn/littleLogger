@@ -36,30 +36,30 @@ func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	standartFormatter := func() string {return "%msg"}
+	standartFormatter := func() string {return "$msg"}
 	return &Logger{target: target, levels: levels, formatter: standartFormatter}, nil
 }
 
 func (l *Logger) Error(msg string) {
-	fmt.Fprintf(l.target,
-		strings.Replace(l.formatter(), "%msg","Error message: %s", 1),
-		msg)
+	fmt.Fprint(l.target,
+		strings.Replace(l.formatter(), "$msg",
+			fmt.Sprintf("Debug message: %s", msg), 1))
 }
 
 func (l *Logger) Info(msg string) {
-	fmt.Fprintf(l.target,
-		strings.Replace(l.formatter(), "%msg","Info message: %s", 1),
-		msg)
+	fmt.Fprint(l.target,
+		strings.Replace(l.formatter(), "$msg",
+			fmt.Sprintf("Debug message: %s", msg), 1))
 }
 
 func (l *Logger) Warning(msg string) {
-	fmt.Fprintf(l.target,
-		strings.Replace(l.formatter(), "%msg","Warning message: %s", 1),
-		msg)
+	fmt.Fprint(l.target,
+		strings.Replace(l.formatter(), "$msg",
+			fmt.Sprintf("Debug message: %s", msg), 1))
 }
 
 func (l *Logger) Debug(msg string) {
-	fmt.Fprintf(l.target,
-		strings.Replace(l.formatter(), "%msg","Debug message: %s", 1),
-		msg)
+	fmt.Fprint(l.target,
+		strings.Replace(l.formatter(), "$msg",
+			fmt.Sprintf("Debug message: %s", msg), 1))
 }
