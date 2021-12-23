@@ -1,4 +1,4 @@
-package littleL
+package littleLogger
 
 import (
 	"fmt"
@@ -7,4 +7,8 @@ import (
 
 func FormatterClassic() string{
 	return fmt.Sprintf("%s: $msg", time.Now().String())
+}
+
+func FormatterMinimal() string{
+	return "$msg"
 }

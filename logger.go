@@ -7,7 +7,9 @@ import (
 	"strings"
 	"sync"
 )
-
+//TODO обдумать возможность рефакторинга под DRY
+//TODO перерассмотреть реализацию с запуском гоуротин
+//TODO обдумать реализацию под микросервисы (возможно создание lock файлов или подобное)
 type Logger struct {
 	target io.Writer
 	mu sync.Mutex
@@ -36,8 +38,7 @@ func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	standartFormatter := func() string {return "$msg"}
-	return &Logger{target: target, levels: levels, formatter: standartFormatter}, nil
+	return &Logger{target: target, levels: levels, formatter: FormatterMinimal}, nil
 }
 
 func (l *Logger) Error(msg string) {
@@ -79,4 +80,8 @@ func (l *Logger) Debug(msg string) {
 			strings.Replace(l.formatter(), "$msg",
 				fmt.Sprintf("Debug message: %s", msg), 1))
 	}()
+}
+
+func (l *Logger) SetFormatter(newFormatter func() string) {
+	l.formatter = newFormatter
 }
