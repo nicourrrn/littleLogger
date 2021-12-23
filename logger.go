@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 )
+
 //TODO обдумать возможность рефакторинга под DRY
 //TODO перерассмотреть реализацию с запуском гоуротин
 //TODO обдумать реализацию под микросервисы (возможно создание lock файлов или подобное)
@@ -18,10 +19,10 @@ type Logger struct {
 }
 
 //NewLogger lvls = {
-//	1 - debug
-//	2 - warning TODO Рассмотреть порядок еще раз
-//	3 - info
-//	4 - error
+//	1 - debug (false)
+//	2 - warning (true) TODO Рассмотреть порядок еще раз
+//	3 - info (true)
+//	4 - error (true)
 //}
 //	formatter: func()string TODO проверить на деле удобность
 //
@@ -42,6 +43,9 @@ func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
 }
 
 func (l *Logger) Error(msg string) {
+	if !l.levels[3]{
+		return
+	}
 	go func() {
 		l.mu.Lock()
 		defer l.mu.Unlock()
@@ -53,6 +57,9 @@ func (l *Logger) Error(msg string) {
 }
 
 func (l *Logger) Info(msg string) {
+	if !l.levels[2]{
+		return
+	}
 	go func() {
 		l.mu.Lock()
 		defer l.mu.Unlock()
@@ -63,6 +70,9 @@ func (l *Logger) Info(msg string) {
 }
 
 func (l *Logger) Warning(msg string) {
+	if !l.levels[1]{
+		return
+	}
 	go func() {
 		l.mu.Lock()
 		defer l.mu.Unlock()
@@ -73,6 +83,9 @@ func (l *Logger) Warning(msg string) {
 }
 
 func (l *Logger) Debug(msg string) {
+	if !l.levels[0]{
+		return
+	}
 	go func() {
 		l.mu.Lock()
 		defer l.mu.Unlock()
