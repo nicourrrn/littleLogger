@@ -35,4 +35,18 @@ func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
 	return &Logger{target: target, levels: levels}, nil
 }
 
+func (l *Logger) Error(msg string) {
+	fmt.Fprintf(l.target, "Error message: %s", msg)
+}
 
+func (l *Logger) Info(msg string) {
+	fmt.Fprintf(l.target, "Info message: %s", msg)
+}
+
+func (l *Logger) Warning(msg string) {
+	fmt.Fprintf(l.target, "Warning message: %s", msg)
+}
+
+func (l *Logger) Debug(msg string) {
+	fmt.Fprintf(l.target, "Error message: %s", msg)
+}
