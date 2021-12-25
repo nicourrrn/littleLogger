@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-//TODO обдумать возможность рефакторинга под DRY
 //TODO перерассмотреть реализацию с запуском гоуротин
 //TODO обдумать реализацию под микросервисы (возможно создание lock файлов или подобное)
 type Logger struct {
@@ -25,7 +24,7 @@ type Logger struct {
 //	3 - info (true)
 //	4 - error (true)
 //}
-//	formatter: func()string TODO проверить на деле удобность
+//	formatter: func()string
 //
 //
 func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
