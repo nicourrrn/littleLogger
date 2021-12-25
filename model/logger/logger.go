@@ -6,16 +6,17 @@ import (
 	"io"
 	"strings"
 	"sync"
+	"time"
 )
 
 //TODO обдумать возможность рефакторинга под DRY
 //TODO перерассмотреть реализацию с запуском гоуротин
 //TODO обдумать реализацию под микросервисы (возможно создание lock файлов или подобное)
 type Logger struct {
-	target io.Writer
-	mu sync.Mutex
+	target    io.Writer
+	mu        sync.Mutex
 	levels    [4]bool
-	formatter func()string
+	formatter func() string
 }
 
 //NewLogger lvls = {
@@ -31,8 +32,8 @@ func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
 	if len(lvls) > 4 {
 		return nil, errors.New("Count of lvls less than 5")
 	}
-	levels := [4]bool{false,true,true,true}
-	for i, l := range lvls{
+	levels := [4]bool{false, true, true, true}
+	for i, l := range lvls {
 		levels[i] = l == 1
 	}
 	_, err := fmt.Fprint(target, "Starting logs")
@@ -43,7 +44,7 @@ func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
 }
 
 func (l *Logger) Error(msg string) {
-	if !l.levels[3]{
+	if !l.levels[3] {
 		return
 	}
 	go func() {
@@ -57,7 +58,7 @@ func (l *Logger) Error(msg string) {
 }
 
 func (l *Logger) Info(msg string) {
-	if !l.levels[2]{
+	if !l.levels[2] {
 		return
 	}
 	go func() {
@@ -70,7 +71,7 @@ func (l *Logger) Info(msg string) {
 }
 
 func (l *Logger) Warning(msg string) {
-	if !l.levels[1]{
+	if !l.levels[1] {
 		return
 	}
 	go func() {
@@ -83,7 +84,7 @@ func (l *Logger) Warning(msg string) {
 }
 
 func (l *Logger) Debug(msg string) {
-	if !l.levels[0]{
+	if !l.levels[0] {
 		return
 	}
 	go func() {
@@ -97,4 +98,20 @@ func (l *Logger) Debug(msg string) {
 
 func (l *Logger) SetFormatter(newFormatter func() string) {
 	l.formatter = newFormatter
+}
+
+func (l *Logger) Wait() {
+	time.Sleep(time.Millisecond * 100)
+	waiter := make(chan int) // TODO переделать тип канала
+	go func() {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+		waiter <- 1
+	}()
+	select {
+	case <-waiter:
+		return
+	case <-time.After(time.Second * 5):
+		fmt.Println("Log file is blocked")
+	}
 }
