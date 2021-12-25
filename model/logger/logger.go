@@ -36,68 +36,54 @@ func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
 	for i, l := range lvls {
 		levels[i] = l == 1
 	}
-	_, err := fmt.Fprint(target, "Starting logs")
+	_, err := fmt.Fprintln(target, "Starting logs")
 	if err != nil {
 		return nil, err
 	}
 	return &Logger{target: target, levels: levels, formatter: FormatterMinimal}, nil
 }
 
-func (l *Logger) Error(msg string) {
-	if !l.levels[3] {
-		return
-	}
-	go func() {
-		l.mu.Lock()
-		defer l.mu.Unlock()
-		fmt.Fprint(l.target,
-			strings.Replace(l.formatter(), "$msg",
-				fmt.Sprintf("Error message: %s", msg), 1))
-	}()
+func (l *Logger) log(typeLog, msg string) {
+	defer l.mu.Unlock()
+	fmt.Fprint(l.target,
+		strings.Replace(l.formatter(), "$msg",
+			fmt.Sprintf("%s%s\n", typeLog, msg), -1))
+}
 
+func (l *Logger) Error(msg string) {
+	if l.levels[3] {
+		l.mu.Lock()
+		go l.log("Error message: ", msg)
+	}
 }
 
 func (l *Logger) Info(msg string) {
-	if !l.levels[2] {
-		return
-	}
-	go func() {
+	if l.levels[2] {
 		l.mu.Lock()
-		defer l.mu.Unlock()
-		fmt.Fprint(l.target,
-			strings.Replace(l.formatter(), "$msg",
-				fmt.Sprintf("Info message: %s", msg), 1))
-	}()
+		go l.log("Info message: ", msg)
+	}
 }
 
 func (l *Logger) Warning(msg string) {
-	if !l.levels[1] {
-		return
-	}
-	go func() {
+	if l.levels[1] {
 		l.mu.Lock()
-		defer l.mu.Unlock()
-		fmt.Fprint(l.target,
-			strings.Replace(l.formatter(), "$msg",
-				fmt.Sprintf("Warning message: %s", msg), 1))
-	}()
+		go l.log("Warning message: ", msg)
+	}
 }
 
 func (l *Logger) Debug(msg string) {
 	if !l.levels[0] {
-		return
-	}
-	go func() {
 		l.mu.Lock()
-		defer l.mu.Unlock()
-		fmt.Fprint(l.target,
-			strings.Replace(l.formatter(), "$msg",
-				fmt.Sprintf("Debug message: %s", msg), 1))
-	}()
+		go l.log("Debug message: ", msg)
+	}
 }
 
+//SetFormatter must contain $msg substring
+//Example: fmt.Sprintf("%s: $msg", time.Now().String())
 func (l *Logger) SetFormatter(newFormatter func() string) {
+	l.mu.Lock()
 	l.formatter = newFormatter
+	l.mu.Unlock()
 }
 
 func (l *Logger) Wait() {
