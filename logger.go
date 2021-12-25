@@ -27,13 +27,13 @@ type Logger struct {
 //	formatter: func()string
 //
 //
-func NewLogger(target io.Writer, lvls ...int) (*Logger, error) {
+func NewLogger(target io.Writer, lvls ...bool) (*Logger, error) {
 	if len(lvls) > 4 {
 		return nil, errors.New("Count of lvls less than 5")
 	}
 	levels := [4]bool{false, true, true, true}
 	for i, l := range lvls {
-		levels[i] = l == 1
+		levels[i] = l
 	}
 	_, err := fmt.Fprintln(target, "Starting logs")
 	if err != nil {
