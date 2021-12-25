@@ -4,7 +4,6 @@ import (
 	"fmt"
 	littleLogger "github.com/nicourrrn/littleLogger/model/logger"
 	"os"
-	"time"
 )
 
 func main() {
@@ -13,11 +12,12 @@ func main() {
 		fmt.Println("error")
 		return
 	}
-	logger.SetFormatter(func() string {
-		return fmt.Sprintf("From %s: $msg", time.Now().String())
-	})
-	logger.Info("Oh, iam work")
+	//logger.SetFormatter(func() string {
+	//	return fmt.Sprintf("From: $msg")
+	//})
 	logger.SetFormatter(littleLogger.FormatterClassic)
+	logger.Info("Oh, iam work")
+	logger.SetFormatter(littleLogger.FormatterMinimal)
 	logger.Warning("You use classic")
 	logger.Wait()
 }
