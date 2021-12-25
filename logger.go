@@ -71,7 +71,7 @@ func (l *Logger) Warning(msg string) {
 }
 
 func (l *Logger) Debug(msg string) {
-	if !l.levels[0] {
+	if l.levels[0] {
 		l.mu.Lock()
 		go l.log("Debug message: ", msg)
 	}
